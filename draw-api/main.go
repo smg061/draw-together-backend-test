@@ -30,11 +30,12 @@ func main() {
 		Network:                 "tcp",
 		Addrs:                   []string{getPort()},
 		Handler:                 handler,
-		MaxLoad:                 1000000,
+		MaxLoad:                 500,
 		ReleaseWebsocketPayload: true,
 		ReadBufferSize:          1024 * 4,
 		IOMod:                   nbhttp.IOModMixed,
 		MaxBlockingOnline:       100000,
+		
 	})
 
 	err := svr.Start()
@@ -55,7 +56,7 @@ func main() {
 func getPort() string {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = ":3000"
+		port = ":3001"
 	} else {
 		port = ":" + port
 	}
