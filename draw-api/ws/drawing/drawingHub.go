@@ -78,7 +78,6 @@ func (h *DrawingHub) NewUpgrader() *websocket.Upgrader {
 
 		h.Broadcast(messageType, data)
 	})
-	u.EnableCompression(true)
 	u.OnClose(func(c *websocket.Conn, err error) {
 		h.Unregister(c)
 	})
