@@ -7,17 +7,23 @@ import (
 	"os"
 
 	ws "uwo-owo.io-backend/ws/drawing"
+    "github.com/rs/cors"
 )
 
 
 func main() {
 	hub := ws.NewDrawingHub()
-	http.HandleFunc("/ws", hub.OnWebsocket)
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/ws", hub.OnWebsocket)
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello World!"))
 	})
 
-	err := http.ListenAndServe(getPort(), nil)
+	handler := cors.Default().Handler(mux)
+
+	err := http.ListenAndServe(getPort(), handler)
 
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
