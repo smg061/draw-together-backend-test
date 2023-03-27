@@ -9,19 +9,31 @@ type Message = {
   room_id: string;
 };
 
+const onMessage = (e: MessageEvent) => {
+  const message: Message = JSON.parse(e.data);
+  if (message.type === "stroke") {
+    const stroke: Stroke = JSON.parse(message.body);
+    return stroke;
+  }
+};
+
 export default function useSendStroke(ctx: React.MutableRefObject<CanvasRenderingContext2D | null>) {
   const { socket } = useSocket();
   const [currentStroke, setCurrentStroke] = useState<Stroke | null>(null);
 
   useEffect(() => {
     if (!socket) return;
-    socket.onmessage = (e) => {
+    const onMessage = (e: MessageEvent) => {
       const message: Message = JSON.parse(e.data);
       if (message.type === "stroke") {
         const stroke: Stroke = JSON.parse(message.body);
         setCurrentStroke(stroke);
       }
     };
+    socket.addEventListener("message", onMessage);
+    return () => {
+      socket.removeEventListener("message", onMessage);
+    }
   }, [socket]);
   
   useEffect(() => {

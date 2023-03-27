@@ -5,7 +5,7 @@ import { Stroke } from "./components/Canvas/History";
 type State = {
     socket: WebSocket | null;
 }
-const connection = new WebSocket("ws://localhost:3000/ws");
+const connection = new WebSocket("ws://localhost:80/ws");
 
 const initialState: State = {
     socket: connection
