@@ -1,15 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"time"
 
+	"github.com/lesismal/nbio/nbhttp"
+	"github.com/rs/cors"
 	ws "uwo-owo.io-backend/ws/drawing"
-    "github.com/rs/cors"
 )
-
 
 func main() {
 	hub := ws.NewDrawingHub()
@@ -23,14 +26,31 @@ func main() {
 
 	handler := cors.Default().Handler(mux)
 
-	err := http.ListenAndServe(getPort(), handler)
+	svr := nbhttp.NewServer(nbhttp.Config{
+		Network:                 "tcp",
+		Addrs:                   []string{getPort()},
+		Handler:                 handler,
+		MaxLoad:                 1000000,
+		ReleaseWebsocketPayload: true,
+		ReadBufferSize:          1024 * 4,
+		IOMod:                   nbhttp.IOModMixed,
+		MaxBlockingOnline:       100000,
+	})
 
+	err := svr.Start()
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
-	fmt.Println("Server started on port", getPort())
-}
 
+	fmt.Println("Server started on port", getPort())
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	<-interrupt
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	svr.Shutdown(ctx)
+
+}
 
 func getPort() string {
 	port := os.Getenv("PORT")
