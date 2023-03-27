@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+
 	ws "uwo-owo.io-backend/ws/drawing"
 )
 
@@ -14,11 +16,23 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello World!"))
 	})
-	fmt.Println("Server started on port 3000")
 
-	err := http.ListenAndServe(":3000", nil)
+	err := http.ListenAndServe(getPort(), nil)
 
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
+	fmt.Println("Server started on port", getPort())
+}
+
+
+func getPort() string {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = ":3000"
+	} else {
+		port = ":" + port
+	}
+
+	return port
 }
