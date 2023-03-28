@@ -56,7 +56,7 @@ func (h *DrawingHub) Unregister(conn *websocket.Conn) {
 	//delete(h.c["default"].connections, conn)
 }
 
-func (h *DrawingHub) Broadcast(messageType websocket.MessageType, data []byte) {
+func (h *DrawingHub) Broadcast(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
 	var message Message
 	err := json.Unmarshal(data, &message)
 	if err != nil {
@@ -69,7 +69,12 @@ func (h *DrawingHub) Broadcast(messageType websocket.MessageType, data []byte) {
 		room = h.connections[message.RoomId]
 	}
 
+
 	for user := range room {
+		// Do not send message to the sender
+		if user == c {
+			continue
+		}
 		user.WriteMessage(messageType, data)
 	}
 }
@@ -81,7 +86,7 @@ func (h *DrawingHub) NewUpgrader() *websocket.Upgrader {
 		return true
 	}
 	u.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
-		h.Broadcast(messageType, data)
+		h.Broadcast(c, messageType, data)
 	})
 	u.OnClose(func(c *websocket.Conn, err error) {
 		h.Unregister(c)
