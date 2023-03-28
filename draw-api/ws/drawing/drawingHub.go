@@ -42,11 +42,17 @@ func NewDrawingHub() *DrawingHub {
 
 func (h *DrawingHub) Register(conn *websocket.Conn) {
 	h.connections["default"][conn] = true
+	for user := range h.connections["default"] {
+		fmt.Printf("%s user is connected \n", user.RemoteAddr().String())
+	}	
+	fmt.Printf("%d user(s) in the room...\n", len(h.connections["default"]))
 	//h.c["default"].connections[conn] = true
 }
 
 func (h *DrawingHub) Unregister(conn *websocket.Conn) {
 	delete(h.connections["default"], conn)
+	fmt.Printf("%s user disconnected\n", conn.RemoteAddr().String())
+	fmt.Printf("%d user(s) remain in the room\n ", len(h.connections["default"]))
 	//delete(h.c["default"].connections, conn)
 }
 
@@ -70,12 +76,11 @@ func (h *DrawingHub) Broadcast(messageType websocket.MessageType, data []byte) {
 
 func (h *DrawingHub) NewUpgrader() *websocket.Upgrader {
 	u := websocket.NewUpgrader()
-
+	u.BlockingModAsyncWrite = true
 	u.CheckOrigin = func(r *http.Request) bool {
 		return true
 	}
 	u.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
-
 		h.Broadcast(messageType, data)
 	})
 	u.OnClose(func(c *websocket.Conn, err error) {
