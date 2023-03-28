@@ -27,7 +27,7 @@ func newUpgrader() *websocket.Upgrader {
 			user.WriteMessage(messageType, data)
 		}
 	})
-	
+
 	u.OnClose(func(c *websocket.Conn, err error) {
 		delete(users, c)
 		fmt.Println("Connection closed", c.RemoteAddr().String(), err)
@@ -35,7 +35,6 @@ func newUpgrader() *websocket.Upgrader {
 
 	return u
 }
-
 
 func OnWebsocket(w http.ResponseWriter, r *http.Request) {
 	upgrader := newUpgrader()

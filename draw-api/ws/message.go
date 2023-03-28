@@ -3,8 +3,8 @@ package ws
 import "fmt"
 
 type Message struct {
-	Body string `json:"body"`
-	User string `json:"user"`
+	Body   string `json:"body"`
+	User   string `json:"user"`
 	RoomId string `json:"room_id"`
 }
 

@@ -91,7 +91,6 @@ func (h *DrawingHub) NewUpgrader() *websocket.Upgrader {
 
 func (h *DrawingHub) OnWebsocket(w http.ResponseWriter, r *http.Request) {
 	upgrader := h.NewUpgrader()
-
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println(err)

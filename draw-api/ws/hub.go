@@ -16,7 +16,6 @@ type WsHub struct {
 	// Inbound messages from the connections.
 }
 
-
 func NewWsHub() *WsHub {
 	hub := &WsHub{
 		connections: make(map[string]map[*websocket.Conn]bool),
@@ -33,7 +32,7 @@ func (h *WsHub) Unregister(conn *websocket.Conn) {
 	delete(h.connections["default"], conn)
 }
 
-func (h *WsHub) Broadcast(messageType websocket.MessageType ,message []byte) {
+func (h *WsHub) Broadcast(messageType websocket.MessageType, message []byte) {
 	for user := range h.connections["default"] {
 		user.WriteMessage(messageType, message)
 	}
@@ -74,4 +73,3 @@ func (h *WsHub) OnWebsocket(w http.ResponseWriter, r *http.Request) {
 	h.Register(wsConn)
 	wsConn.SetReadDeadline(time.Time{})
 }
-
